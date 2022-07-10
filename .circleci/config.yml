@@ -42,7 +42,7 @@ jobs:
       - run:
           name: "Smoke test: Check if the server is up"
           command: |
-            URL=https://blog.udacity.com/
+            URL=https://blog.udacity55664.com/
             # Test if the server is up
             if curl -s --head ${URL}
             then
