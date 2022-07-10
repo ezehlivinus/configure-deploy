@@ -1,0 +1,23 @@
+# Exercise - Rollback
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'EC2 Instance Template - Udacity'
+Resources:
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+      KeyName: ansible-lesson
+      ImageId: 'ami-052efd3df9dad4825'
+      InstanceType: t3.micro
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EC2 Instance Template - enable SSH access via 22 port
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
