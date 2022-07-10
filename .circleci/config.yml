@@ -14,13 +14,31 @@ jobs:
       - run:
           name: "Create Cloudformation Stack"
           command: "aws cloudformation deploy --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} --template-file template.yml --region us-east-1"
-          # timeout: 1800
-          # fail_mode: CONTINUE
+
+# Exercise: Configure and Deployment
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["5d:fc:83:2b:54:1d:60:1c:57:36:26:f1:f3:57:6d:9c"]
+      - run:
+          # name: "Configure Cloudformation Stack"
+          # command: "aws cloudformation update --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} --template-file template.yml --region us-east-1"
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: "Configure Cloudformation Stack - configure server"
+          command: |
+            ansible-playbook -i inventory.yml main.yml
+
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  create-infrastructure-workflow:
+  configure_infrastructure-workflow:
     jobs:
-      # - say-hello
-      - create-infrastructure
+      # - create-infrastructure
+      - configure_infrastructure
