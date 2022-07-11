@@ -126,7 +126,7 @@ jobs:
           name: Destroy the previous s3 bucket and CloudFormation stack
           command: |
             export OldBukcketName=my-cicd-bucket-231192183536
-            aws s3 rm "s3://${my-cicd-bucket-231192183536}" --recursive
+            aws s3 rm "s3://my-cicd-bucket-231192183536 --recursive
       - run:
           name: show textfile content
           command: cat ~/textfile.txt
