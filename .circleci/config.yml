@@ -80,7 +80,7 @@ jobs:
       - run:
           name: Fetch and save the old pipeline ID responsible for the deployment.
           command: |
-            aws cloudformation \list-exports
+            aws cloudformation list-exports \
             --query "Exports[?Name==`PipelineID`].Value" \
             --no-paginate --output text > ~/textfile.txt
       - persist_to_workspace:
