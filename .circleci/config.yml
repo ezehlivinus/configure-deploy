@@ -90,8 +90,8 @@ jobs:
           name: Fetch and save the old pipeline ID responsible for the deployment.
           command: |
             aws cloudformation list-exports \
-            --query "Exports[?Name==PipelineID].Value" \ 
-            --no-paginate --output text > ~/textfile.txt
+              --query "Exports[?Name==PipelineID].Value" \ 
+              --no-paginate --output text > ~/textfile.txt
       - persist_to_workspace:
           name: Persist the old pipeline ID responsible for the deployment.
           root: ~/
@@ -108,10 +108,10 @@ jobs:
           name: Execute cloudfront.yml
           command: |
             aws cloudformation deploy \
-            --stack-name production-distro \
-            --template-file cloudfront.yml \
-            --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --region us-east-1
+              --stack-name production-distro \
+              --template-file cloudfront.yml \
+              --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --region us-east-1
 
 
   clean_up_old_front_end:
