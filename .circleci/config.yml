@@ -77,7 +77,7 @@ jobs:
             --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}" \
             --region us-east-1
       - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
-
+      - special_delete
 
 # Fetch and save the pipeline ID responsible for the deployment.
   get_last_deployment_id:
