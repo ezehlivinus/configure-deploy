@@ -62,7 +62,7 @@ jobs:
       - checkout
       - run:
           name: Execute bucket.yml - create  a cloudformation stack
-          when: on_fail:
+          when: on_fail
             command: |
               aws cloudformation describe-stack-events --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
             command: |
