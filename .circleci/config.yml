@@ -8,6 +8,7 @@ commands:
     steps:
       - run:
           name: Destroy environments
+          when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -52,7 +53,6 @@ jobs:
           command: |
             return 1 # simulate error, causing the build to fail
       - destroy_environments
-          when: on_fail
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
