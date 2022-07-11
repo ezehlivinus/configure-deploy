@@ -2,6 +2,15 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
+# Define commands to run before and after the build process.
+commands:
+  destroy_environments:
+    steps:
+      - run:
+          name: Destroy environments
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7}
+
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
@@ -13,7 +22,7 @@ jobs:
       - checkout
       - run:
           name: "Create Cloudformation Stack"
-          command: "aws cloudformation deploy --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} --template-file template.yml --region us-east-1"
+          command: "aws cloudformation deploy --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:7} --template-file template.yml --region us-east-1"
 
 # Exercise: Configure and Deployment
   configure_infrastructure:
@@ -38,19 +47,12 @@ jobs:
     docker:
       - image: alpine:latest
     steps:
-      - run: apk add --update curl
       - run:
-          name: "Smoke test: Check if the server is up"
+          name: simulate error
           command: |
-            URL=https://blog.udacity.com/
-            # Test if the server is up
-            if curl -s --head ${URL}
-            then
-              return 0
-            else
-              return 1
-            fi
-
+            return 1 # simulate error, causing the build to fail
+      - destroy_environments
+        when: on_fail
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
@@ -59,4 +61,5 @@ workflows:
     jobs:
       # - create-infrastructure
       # - configure_infrastructure
+      - create-infrastructure
       - smoke-test
