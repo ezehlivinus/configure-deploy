@@ -90,7 +90,7 @@ jobs:
           name: Fetch and save the old pipeline ID responsible for the deployment.
           command: |
             aws cloudformation list-exports \
-            --query "Exports[?Name==PipelineID].Value" \
+            --query "Exports[?Name==PipelineID].Value" \ # This line has a bug, it is not picking the value
             --no-paginate --output text > ~/textfile.txt
       - persist_to_workspace:
           name: Persist the old pipeline ID responsible for the deployment.
@@ -126,7 +126,8 @@ jobs:
       - run:
           name: Destroy the previous s3 bucket and CloudFormation stack
           command: |
-            export OldBucketID=$(cat ~/textfile.txt) 
+            # export OldBucketID=$(cat ~/textfile.txt) # This didnt work
+            export OldBukcketName=mybucket-db8d8d0 # This worked, but statically assigned
             aws s3 rm "s3://${OldBucketID:0:7}" --recursive
       - run:
           name: show textfile content
