@@ -52,7 +52,7 @@ jobs:
           command: |
             return 1 # simulate error, causing the build to fail
       - destroy_environments
-        when: on_fail
+          when: on_fail
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
