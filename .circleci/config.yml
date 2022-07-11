@@ -5,8 +5,6 @@ version: 2.1
 # Define commands to run before and after the build process.
 commands:
   destroy_environments:
-    docker:
-      - image: amazon/aws-cli
     steps:
       - run:
           name: Destroy environments
@@ -49,6 +47,7 @@ jobs:
   smoke-test:
     docker:
       - image: alpine:latest
+      - image: amazon/aws-cli
     steps:
       - run:
           name: simulate error
