@@ -51,8 +51,7 @@ jobs:
     steps:
       - run:
           name: simulate error
-          command: |
-            return 1 # simulate error, causing the build to fail
+          run: return 1 # simulate error, causing the build to fail
       - destroy_environments
 
 # Invoke jobs via workflows
