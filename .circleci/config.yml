@@ -88,9 +88,10 @@ jobs:
       - run: yum install -y tar gzip
       - run:
           name: Fetch and save the old pipeline ID responsible for the deployment.
+          # The command has a bug that it doesn't return the correct value.
           command: |
             aws cloudformation list-exports \
-            --query "Exports[?Name==PipelineID].Value" \ # This line has a bug, it is not picking the value
+            --query "Exports[?Name==PipelineID].Value" \ 
             --no-paginate --output text > ~/textfile.txt
       - persist_to_workspace:
           name: Persist the old pipeline ID responsible for the deployment.
@@ -125,9 +126,9 @@ jobs:
           at: ~/
       - run:
           name: Destroy the previous s3 bucket and CloudFormation stack
+            # export OldBucketID=$(cat ~/textfile.txt) this didnt work below
           command: |
-            # export OldBucketID=$(cat ~/textfile.txt) # This didnt work
-            export OldBukcketName=mybucket-db8d8d0 # This worked, but statically assigned
+            export OldBukcketName=mybucket-db8d8d0 
             aws s3 rm "s3://${OldBucketID:0:7}" --recursive
       - run:
           name: show textfile content
