@@ -55,11 +55,73 @@ jobs:
       - run: return 1
       - destroy_environments
 
+  create_and_deploy_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Execute bucket.yml - create  a cloudformation stack
+          command: |
+            aws cloudformation deploy \
+            --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7} \
+            --template-file bucket.yml \
+            --parameter-overrides MyBucketName="mybucket-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --region us-east-1
+      - run: aws s3 sync . s3://mybucket-${CIRCLE_WORKFLOW_ID:0:7} --delete
+
+# Fetch and save the pipeline ID responsible for the deployment.
+  get_last_deployment_id:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Fetch and save the old pipeline ID responsible for the deployment.
+          command: |
+            aws cloudformation \list-exports
+            --query "Exports[?Name==`PipelineID`].Value" \
+            --no-paginate --output text > ~/textfile.txt
+      - persist_to_workspace:
+          name: Persist the old pipeline ID responsible for the deployment.
+          root: ~/
+          paths:
+            - textfile.txt
+
+  promote_to_production:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Execute cloudfront.yml
+          command: |
+            aws cloudformation deploy \
+            --stack-name production-distro \
+            --template-file cloudfront.yml \
+            --parameter-overrides PipelineID="mybucket-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --region us-east-1
+
+
+  clean_up_old_front_end:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - attach_workspace:
+          name: Attach the old pipeline ID responsible for the deployment.
+          at: ~/
+      - run:
+          name: Destroy the previous s3 bucket and CloudFormation stack
+          command: |
+            export OldBucketID=$(cat ~/textfile.txt) aws s3 rm "s3://${OldBucketID:0:7}" --recursive
 
 # Invoke jobs via workflows
 # See: https://circleci.com/docs/2.0/configuration-reference/#workflows
 workflows:
-  smoke-test-workflow:
+  my-workflow:
     jobs:
       # - create-infrastructure
       # - configure_infrastructure
@@ -68,8 +130,18 @@ workflows:
 
       # testing when create-infrastructure job works then when smoke-test job fails
       # does the destroy-environments job get run?
-      - create-infrastructure
-      - smoke-test:
+      # - create-infrastructure
+      # - smoke-test:
+      #     requires:
+      #       - create-infrastructure
+      - create_and_deploy_front_end:
+      - promote_to_production:
           requires:
-            - create-infrastructure
+            - create_and_deploy_front_end
+      - get_last_deployment_id:
+      - clean_up_old_front_end:
+          requires:
+            - get_last_deployment_id
+            - promote_to_production
+
 

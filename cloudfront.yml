@@ -1,0 +1,46 @@
+# Exercise: Promote to production
+Parameters:
+  PipelineID:
+    Description: Existing Bucket name
+    Type: String
+
+Resources:
+  CloudFrontOriginAccessIdentity:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: !Sub ${PipelineID} - CloudFront Origin Access Identity for serverless static website
+  WebpageCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !Sub "${PipelineID}.s3.amazonaws.com"
+            Id: webpage
+            # OriginPath: /
+            S3OriginConfig:
+              OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"
+        Enabled: true
+        DefaultRootObject: index.html
+        DefaultCacheBehavior:
+          TargetOriginId: webpage
+          ForwardedValues:
+            QueryString: false
+          ViewerProtocolPolicy: allow-all
+
+Outputs:
+  PipelineID:
+    Description: Existing Bucket name
+    Value: !Sub ${PipelineID}
+    Export:
+      Name: PipelineID
+
+
+# create the stack using
+# aws cloudformation deploy \
+# --template-file cloudfront.yml \
+# --stack-name production-distro \
+# --parameter-overrides PipelineID="${S3_BUCKET_NAME}" \ # Name of the S3 bucket you created manually.
+# --tags project=udapeople &
+
+                
