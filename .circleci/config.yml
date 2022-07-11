@@ -97,7 +97,7 @@ jobs:
           root: ~/
           paths:
             - textfile.txt
-      run: cat ~/textfile.txt
+      - run: cat ~/textfile.txt
 
   promote_to_production:
     docker:
