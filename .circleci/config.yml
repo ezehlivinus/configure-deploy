@@ -133,7 +133,7 @@ jobs:
           command: cat ~/textfile.txt
 
       - run:
-          name: Deleting cloudformation stack: production-distro
+          name: 'Deleting cloudformation stack: production-distro'
           command: aws cloudformation delete-stack --stack-name production-distro
 
 # Invoke jobs via workflows
