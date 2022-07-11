@@ -69,6 +69,6 @@ workflows:
       # testing when create-infrastructure job works then when smoke-test job fails
       # does the destroy-environments job get run?
       - smoke-test
-        requires:
-          - create-infrastructure
+          requires:
+            - create-infrastructure
 
